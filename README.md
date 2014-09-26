@@ -9,14 +9,15 @@ int executeCommand(char* command) {
 	if ((cmdIn = popen(command, "r")) == NULL) {
 		printf("Error executing command\n");
 		perror("Error executing command\n");
-		longjmp(getinput, 1);
+		return(1)
 	}
 	while (fgets(readbuf, 120, cmdIn))
 	{
+		//Writing content to stdout
 		status=0;
-		printf("%s", readbuf);
+		puts(readbuf);
 	}
-	//printf("\nFLAG is %d\n",flag);
+	
 	pclose(cmdIn);
 	return status;
 }
@@ -25,36 +26,43 @@ int executeCommand(char* command) {
 
 //Executing a command to redirect output to a file
 
-int executeRedirectCommand(char* line) {
-	FILE *pipein_fp, *redirect_fp;
-	int redirect;
-	char readbuf[128];
-	int i, j;
+int RedirectOutputCommand(char* InputCommand) {
+	FILE *inputfilep, *redirectedfilep;
+	int status = 1;  //Setting an exit status
+	int a, b, fd, pid;
 	char* command1;
 	char* command2;
-	int pid, fd;
-	int flag = 1;
-	command1 = strtok(line, ">");
-	command2 = strtok(NULL, ">");
-	while (command2[i] == ' ') {
-		j = 0;
-		while (command2[j]) {
-			command2[j] = command2[j + 1];
-			j++;
+	char readbuf[120]
+	int redirect;
+	
+	//Breaking the input command into a series of tokens using delimiter  >
+	
+	command1 = strtok(InputCommand, ">"); //Getting  the first token  
+	
+	command2 = strtok(NULL, ">"); 
+	while (command2[a] == ' ') {
+		b = 0;
+		while (command2[b]) {
+			command2[b] = command2[b + 1];
+			b++;
 		}
-		i++;
+		a++;
 	}
-	redirect_fp = fopen(command2, "w");
-	if ((pipein_fp = popen(command1, "r")) == NULL) {
-		longjmp(getinput, 1);
+	redirectedfp = fopen(command2, "w");
+	
+	//Exception Handling
+	if ((inputfilep = popen(command1, "r")) == NULL) {
+		return(1);  //Setting exit status indicating an error
 		}
-	while (fgets(readbuf, 80, pipein_fp)) {
-	flag=0;
-		fputs(readbuf, redirect_fp);
-		fflush(redirect_fp);
+		
+	//Reading file	
+	while (fgets(readbuf, 120, inputfilep)) {
+		status=0;  //Setting an exit status
+		fputs(readbuf, redirectedfp); //Writing strings from inputfile to the stream of file opened for command2
+		fflush(redirectedfp); //Flushing output buffer of the stream
 	}
-	fclose(redirect_fp);
-	pclose(pipein_fp);
-	return flag;
+	fclose(redirectedfp);  //Closing redirected file pointer
+	pclose(inputfilep);  //Closing input file pointer
+	return status;
 }
 
