@@ -6,18 +6,18 @@ int executeCommand(char* command) {
 	char readbuf[120];
 	
 	//Exception Handling
-	if ((cmdIn = popen(line, "r")) == NULL) {
+	if ((cmdIn = popen(command, "r")) == NULL) {
 		printf("Error executing command\n");
 		perror("Error executing command\n");
 		longjmp(getinput, 1);
 	}
-	while (fgets(readbuf, 120, pipein_fp))
+	while (fgets(readbuf, 120, cmdIn))
 	{
 		status=0;
 		printf("%s", readbuf);
 	}
 	//printf("\nFLAG is %d\n",flag);
-	pclose(pipein_fp);
+	pclose(cmdIn);
 	return status;
 }
 
