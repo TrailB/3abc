@@ -1,24 +1,24 @@
 //Executing a command without argument 
 
-int executeCommand(char* line) {
+int executeCommand(char* command) {
 	FILE *cmdIn;
-	char readbuf[80];
-	int flag = 1;
+	int status = 1;
+	char readbuf[120];
 	
 	//Exception Handling
 	if ((cmdIn = popen(line, "r")) == NULL) {
 		printf("Error executing command\n");
-		perror("Error ");
+		perror("Error executing command\n");
 		longjmp(getinput, 1);
 	}
-	while (fgets(readbuf, 80, pipein_fp))
+	while (fgets(readbuf, 120, pipein_fp))
 	{
-		flag=0;
+		status=0;
 		printf("%s", readbuf);
 	}
 	//printf("\nFLAG is %d\n",flag);
 	pclose(pipein_fp);
-	return flag;
+	return status;
 }
 
 
